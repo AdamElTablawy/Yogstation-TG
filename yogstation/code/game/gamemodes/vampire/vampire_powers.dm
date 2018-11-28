@@ -79,7 +79,8 @@
 	name = "Rejuvenate"
 	desc= "Flush your system with spare blood to remove any incapacitating effects."
 	action_icon_state = "rejuv"
-	charge_max = 200
+	charge_max = 500
+	blood_used = 50
 	stat_allowed = 1
 	action_icon = 'yogstation/icons/mob/vampire.dmi'
 	action_background_icon_state = "bg_demon"
@@ -93,12 +94,14 @@
 	if(!V) //sanity check
 		return
 	for(var/i = 1 to 5)
-		U.adjustStaminaLoss(-10)
+		U.adjustStaminaLoss(-80)
+		U.SetStun(0)
+		U.SetKnockdown(0)
 		if(V.get_ability(/datum/vampire_passive/regen))
-			U.adjustBruteLoss(-1)
-			U.adjustOxyLoss(-2.5)
-			U.adjustToxLoss(-1)
-			U.adjustFireLoss(-1)
+			U.adjustBruteLoss(-10)
+			U.adjustOxyLoss(-25)
+			U.adjustToxLoss(-10)
+			U.adjustFireLoss(-10)
 		sleep(7.5)
 
 
@@ -106,7 +109,7 @@
 	name = "Hypnotize (20)"
 	desc= "A piercing stare that incapacitates your victim for a good length of time."
 	action_icon_state = "hypnotize"
-	blood_used = 20
+	blood_used = 0
 	action_icon = 'yogstation/icons/mob/vampire.dmi'
 	action_background_icon_state = "bg_demon"
 	vamp_req = TRUE
@@ -114,15 +117,11 @@
 /obj/effect/proc_holder/spell/targeted/hypnotise/cast(list/targets, mob/user = usr)
 	for(var/mob/living/target in targets)
 		user.visible_message("<span class='warning'>[user]'s eyes flash briefly as he stares into [target]'s eyes</span>")
-		if(do_mob(user, target, 50))
-			to_chat(user, "<span class='warning'>Your piercing gaze knocks out [target].</span>")
-			to_chat(target, "<span class='warning'>You find yourself unable to move and barely able to speak.</span>")
-			target.Paralyze(150)
-			target.stuttering = 10
-		else
-			revert_cast(usr)
-			to_chat(usr, "<span class='warning'>You broke your gaze.</span>")
-
+		to_chat(user, "<span class='warning'>Your piercing gaze knocks out [target].</span>")
+		to_chat(target, "<span class='warning'>You find yourself unable to move and barely able to speak.</span>")
+		target.Paralyze(150)
+		target.stuttering = 10
+			
 /obj/effect/proc_holder/spell/self/shapeshift
 	name = "Shapeshift (50)"
 	desc = "Changes your name and appearance at the cost of 50 blood and has a cooldown of 3 minutes."
@@ -205,10 +204,10 @@
 		if(C == user || (ishuman(C) && C.get_ear_protection()) || is_vampire(C))
 			continue
 		to_chat(C, "<span class='warning'><font size='3'><b>You hear a ear piercing shriek and your senses dull!</font></b></span>")
-		C.Knockdown(4)
+		C.Knockdown(20)
 		C.adjustEarDamage(0, 30)
 		C.stuttering = 250
-		C.Stun(4)
+		C.Stun(40)
 		C.Jitter(150)
 	for(var/obj/structure/window/W in view(4))
 		W.take_damage(75)
@@ -224,12 +223,12 @@
 	charge_max = 1200
 	vamp_req = TRUE
 	blood_used = 75
-	var/num_bats = 2
+	var/num_bats = 4
 
 /obj/effect/proc_holder/spell/bats/choose_targets(mob/user = usr)
 	var/list/turf/locs = new
 	for(var/direction in GLOB.alldirs) //looking for bat spawns
-		if(locs.len == num_bats) //we found 2 locations and thats all we need
+		if(locs.len == num_bats) //we found 4 locations and thats all we need
 			break
 		var/turf/T = get_step(usr, direction) //getting a loc in that direction
 		if(AStar(user, T, /turf/proc/Distance, 1, simulated_only = 0)) // if a path exists, so no dense objects in the way its valid salid
