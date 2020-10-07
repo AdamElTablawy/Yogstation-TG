@@ -15,3 +15,4 @@
 
 /obj/item/projectile/energy/bolt/large
 	damage = 40
+	knockdown = 0
